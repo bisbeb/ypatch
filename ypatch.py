@@ -1,6 +1,7 @@
 #!/bin/env python
 
 import sys
+import yaml
 from optparse import OptionParser
 
 class YamlAction:
@@ -18,10 +19,32 @@ class YamlAction:
     pass
 
 class YamlPatcher:
+ 
   def __init__(self, opts):
+    if opts["create"]:
+      self.yaml_action = YamlAction("create")
+      self.expr = opts["create"]
+    elif opts["update"]:
+      self.yaml_action = YamlAction("update")
+      self.expr = opts["update"]
+    elif opts["delete"]:
+      self.yaml_action = YamlAction("delete")
+      self.expr = opts["delete"]
+
+    print self.expr
+
+    if opts["file"] == "-":
+      tmp_yaml = ""
+      for line in sys.stdin:
+        tmp_yaml += line
+      self.yaml = yaml.load(tmp_yaml, Loader=yaml.FullLoader)
+    else:
+      stream = file(opts["file"], 'r')
+      self.yaml = yaml.load(stream, Loader=yaml.FullLoader)
+
+  def tokenize_expr(self):
     pass
     
-  
 if __name__ == "__main__":
   usage = """
 Tool to patch yaml files on the fly.
@@ -37,7 +60,6 @@ a valid path within the yaml file structure
   cmd_parser.add_option("-f", "--file",   dest="file",   metavar="filename",   help="filename to read from, use - to read from stdin")
 
   (opts, args) = cmd_parser.parse_args()
-
-  for line in sys.stdin:
-    print(line.rstrip())
+  cmd_opts = vars(opts)
+  yaml_patcher = YamlPatcher(cmd_opts)
 
