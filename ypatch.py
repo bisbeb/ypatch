@@ -1,6 +1,7 @@
 #!/bin/env python
 
 import sys
+import re
 import yaml
 from optparse import OptionParser
 
@@ -42,8 +43,15 @@ class YamlPatcher:
       stream = file(opts["file"], 'r')
       self.yaml = yaml.load(stream, Loader=yaml.FullLoader)
 
-  def tokenize_expr(self):
-    pass
+    self.__tokenize_expr()
+
+  def __tokenize_expr(self):
+    n_tokens = []
+    re_array = re.compile(r"(.*)[\[(\d+)\]]$")
+    for token in self.expr.split("."):
+      re_m = re_array.match(token)
+      n_tokens.append({re_m.group(1):re_m.group(2)})
+    print n_tokens
     
 if __name__ == "__main__":
   usage = """
